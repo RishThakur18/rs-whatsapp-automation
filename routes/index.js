@@ -16,7 +16,8 @@ router.get('/meta_webhook', (req, res) => {
             process.env.Meta_WA_VerifyToken === token
         ) {
             return res.status(200).send(challenge);
-        } else {
+        } 
+        else {
             return res.sendStatus(403);
         }
     } catch (error) {
