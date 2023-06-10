@@ -3,9 +3,9 @@ const router = require('express').Router();
 
 const WhatsappCloudAPI = require('whatsappcloudapi_wrapper');
 const Whatsapp = new WhatsappCloudAPI({
-    accessToken: process.env.Meta_WA_accessToken,
-    senderPhoneNumberId: process.env.Meta_WA_SenderPhoneNumberId,
-    WABA_ID: process.env.Meta_WA_wabaId, 
+    accessToken: process.env.META_WA_ACCESS_TOKEN,
+    senderPhoneNumberId: process.env.META_WA_SENDER_PHONE_NUMBER_ID,
+    WABA_ID: process.env.META_WA_WHATSAPP_BUSINESS_ID, 
     graphAPIVersion: 'v14.0'
 });
 
@@ -29,7 +29,7 @@ router.get('/meta_webhook', (req, res) => {
             return res.status(200).send(challenge);
         } 
         else {
-            return res.status(200).send("invalid token");
+            return res.status(200).send("something went wrong!!");
         }
     } catch (error) {
         console.error({error})
