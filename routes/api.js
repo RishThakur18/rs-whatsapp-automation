@@ -15,7 +15,6 @@ const CustomerSession = new Map();
 
 router.get('/meta_webhook', (req, res) => {
     try {
-        console.log('GET: Someone is pinging me!');
 
         let mode = req.query['hub.mode'];
         let token = req.query['hub.verify_token'];
@@ -40,8 +39,6 @@ router.get('/meta_webhook', (req, res) => {
 
 router.post('/meta_webhook', async (req, res) => {
     try {
-        console.log('POST: Someone is pinging me!');
-
         let data = Whatsapp.parseMessage(req.body);
 
         if (data?.isMessage) {
