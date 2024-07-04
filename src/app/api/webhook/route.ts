@@ -1,22 +1,8 @@
+import { WhatsApp } from '@/whatsAppUtils/wa';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import WhatsApp from 'whatsapp';
 
-const wa = new WhatsApp();
-
-async function sendMessage(to: string, message: string) {
-    try {
-        await wa.messages.send({
-            to,
-            type: 'text',
-            text: {
-                body: message,
-            }
-        });
-    } catch (error) {
-        console.error('Error sending message:', error);
-    }
-}
+const whatsapp = new WhatsApp();
 
 export async function GET(request: NextRequest) {
     try {
@@ -38,19 +24,22 @@ export async function GET(request: NextRequest) {
 };
 
 export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
 
-        const { messages } = body;
+    try {
+        const whatsappPayload = await request.json();
+
+        const firstEntry = whatsappPayload.entry[0];
+        const firstChange = firstEntry.changes[0];
+        const messages = firstChange.value.messages;
 
         if (messages && messages.length > 0) {
             const message = messages[0];
             const from = message.from;
             const text = message.text.body;
-            await sendMessage(from, 'Hi, how can I help you?');
+            await whatsapp.messages.sendText("hiiii", from);
         }
 
-        return NextResponse.json({ status: 'success' });
+        return NextResponse.json({ status: 'success' }, { status: 200 });
     }
     catch (error: any) {
         console.error('Error in POST request:', error);
