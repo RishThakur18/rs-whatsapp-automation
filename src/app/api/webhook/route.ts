@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
         const token = searchParams.get('hub.verify_token');
         const challenge = searchParams.get('hub.challenge');
 
-        if (mode && token && mode === 'subscribe' && process.env.WEBHOOK_VERIFICATION_TOKEN === token) {
+        if (mode && token && mode === 'subscribe' && process.env.WA_WEBHOOK_VERIFICATION_TOKEN === token) {
             return new NextResponse(challenge, { status: 200 });
         } else {
             return NextResponse.json({ success: false }, { status: 500 });
