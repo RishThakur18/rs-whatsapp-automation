@@ -3,7 +3,7 @@ import WhatsApp from "whatsapp";
 const senderNumber = 901234567890;
 const wa = new WhatsApp();
 
-export default function custom_callback(statusCode: any, headers: any, body: any, resp: any, err: any) {
+export default function webhook(statusCode: any, headers: any, body: any, resp: any, err: any) {
     console.log(
         `Incoming webhook status code: ${statusCode}\n\nHeaders:
         ${JSON.stringify(headers)}\n\nBody: ${JSON.stringify(body)}`
@@ -19,4 +19,4 @@ export default function custom_callback(statusCode: any, headers: any, body: any
     }
 }
 
-wa.webhooks.start(custom_callback);
+wa.webhooks.start(webhook);
