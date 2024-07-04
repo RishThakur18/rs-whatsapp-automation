@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
         const challenge = searchParams.get('hub.challenge');
 
         if (mode && token && mode === 'subscribe' && process.env.WEBHOOK_VERIFICATION_TOKEN === token) {
+            console.log(NextResponse.json(challenge, { status: 200 }));
             return NextResponse.json(challenge, { status: 200 });
         }
         else {
