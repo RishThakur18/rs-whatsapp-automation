@@ -1,5 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import WhatsApp from 'whatsapp';
+
+const wa = new WhatsApp();
+
+async function sendMessage(to: string, message: string) {
+    try {
+        await wa.messages.send({
+            to,
+            type: 'text',
+            text: {
+                body: message,
+            }
+        });
+    } catch (error) {
+        console.error('Error sending message:', error);
+    }
+}
 
 export async function GET(request: NextRequest) {
     try {
@@ -10,29 +27,33 @@ export async function GET(request: NextRequest) {
 
         if (mode && token && mode === 'subscribe' && process.env.WEBHOOK_VERIFICATION_TOKEN === token) {
             return new NextResponse(challenge, { status: 200 });
-        }
-        else {
-            console.log(NextResponse.json(mode, { status: 200 }));
+        } else {
             return NextResponse.json({ success: false }, { status: 500 });
         }
     }
     catch (error) {
-        console.log(NextResponse.json({ success: false }, { status: 200 }));
-        console.error({ error })
+        console.error('Error in GET request:', error);
         return NextResponse.json({ success: false, status: 500 });
     }
 };
 
 export async function POST(request: NextRequest) {
-
     try {
-        console.log(">>> ", request.body);
-        return NextResponse.json({ success: true, status: 200 });
-    }
-    catch (error) {
-        console.error({ error })
+        const body = await request.json();
 
-        return NextResponse.json({ success: false, status: 500 });
-    }
-};
+        const { messages } = body;
 
+        if (messages && messages.length > 0) {
+            const message = messages[0];
+            const from = message.from;
+            const text = message.text.body;
+            await sendMessage(from, 'Hi, how can I help you?');
+        }
+
+        return NextResponse.json({ status: 'success' });
+    }
+    catch (error: any) {
+        console.error('Error in POST request:', error);
+        return NextResponse.json({ status: 'error', message: error.message });
+    }
+}
