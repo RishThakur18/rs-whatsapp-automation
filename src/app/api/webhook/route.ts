@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
         const token = searchParams.get('hub.verify_token');
         const challenge = searchParams.get('hub.challenge');
 
-        if (mode && token && mode === 'subscribe' && process.env.Meta_WA_VerifyToken === token) {
+        if (mode && token && mode === 'subscribe' && process.env.WEBHOOK_VERIFICATION_TOKEN === token) {
             return NextResponse.json({ success: true, status: 200 });
         }
         else {
