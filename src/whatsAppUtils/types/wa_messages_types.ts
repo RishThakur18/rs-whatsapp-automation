@@ -47,7 +47,12 @@ export interface Footer {
 }
 
 export interface Action {
-    buttons: Button[];
+    buttons?: Button[];
+    name?: string;
+    parameters?: {
+        display_text: string,
+        url: string
+    }
 }
 
 export interface Button {

@@ -19,6 +19,8 @@ export class WA_MESSAGES {
             [type]: payload,
         };
 
+        console.log("body  ", JSON.stringify(body));
+
         if (replyMessageId) {
             body.context = { message_id: replyMessageId };
         }
@@ -39,20 +41,54 @@ export class WA_MESSAGES {
         return this.send("audio", audioPayload, recipient, replyMessageId);
     }
 
-    async sendContacts(contactsPayload: ContactsPayload[], recipient: string, replyMessageId?: string) {
-        return this.send("contacts", contactsPayload, recipient, replyMessageId);
+    async sendContacts(recipient: string, replyMessageId?: string) {
+
+        const payload = {
+
+            "addresses": [
+                {
+                    "city": "Meerut",
+                    "state": "UP",
+                    "zip": "250110",
+                    "country_code": "IN",
+                }
+            ],
+            "emails": [
+                {
+                    "email": "rishabhsingh97it@gmail.com",
+                }
+            ],
+            "name": {
+                "formatted_name": "Rishabh Singh",
+                "first_name": "Rishabh",
+                "last_name": "Singh",
+            },
+            "phones": [
+                {
+                    "phone": "+918265990451",
+                    "type": "918265990451",
+                }
+            ],
+            "urls": [
+                {
+                    "url": "https://rsuniverse.com",
+                    "type": "Portfolio"
+                },
+            ]
+        }
+        return this.send("contacts", [payload], recipient, replyMessageId);
     }
 
     async sendDocument(documentPayload: any, recipient: string, replyMessageId?: string) {
 
-        const payload: DocumentPayload = 
-            {
-                link: `https://rs-whatsapp-automation.vercel.app/resume.pdf`,
-                caption: documentPayload.caption,
-                filename: documentPayload.filename
+        const payload: DocumentPayload =
+        {
+            link: documentPayload.link,
+            caption: documentPayload.caption,
+            filename: documentPayload.filename
         }
 
-        return this.send("document", documentPayload, recipient, replyMessageId);
+        return this.send("document", payload, recipient, replyMessageId);
     }
 
     async sendImage(imagePayload: ImagePayload, recipient: string, replyMessageId?: string) {
@@ -61,26 +97,43 @@ export class WA_MESSAGES {
 
     async sendInteractive(interactivePayload: any, recipient: string, replyMessageId?: string) {
 
-        const buttons = interactivePayload.buttons.slice(0, 3).map((button: { id: string; title: string; }) => ({
-            type: "reply",
-            reply: {
-                id: button.id,
-                title: button.title,
-            }
-        }));
+        let action = {};
+
+        if (interactivePayload.type === "button") {
+            action = {
+                buttons: interactivePayload.buttons.slice(0, 3).map((button: { id: string; title: string; }) => ({
+                    type: "reply",
+                    reply: {
+                        id: button.id,
+                        title: button.title,
+                    }
+                }))
+            };
+        }
+
+        else if (interactivePayload.type === "cta_url") {
+            action = {
+                name: "cta_url",
+                parameters: {
+                    display_text: interactivePayload.url_label,
+                    url: interactivePayload.url
+                }
+            };
+            console.log("action  ", action);
+        }
+
 
         const payload: InteractivePayload = {
+
             type: interactivePayload.type,
-            header: { type: "text", text: interactivePayload.header },
+            header: interactivePayload.header,
             body: {
                 text: interactivePayload.text,
             },
             footer: {
                 text: interactivePayload.footer,
             },
-            action: {
-                buttons,
-            },
+            action
         };
 
         return this.send("interactive", payload, recipient, replyMessageId);

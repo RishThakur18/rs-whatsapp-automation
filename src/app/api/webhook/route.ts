@@ -41,9 +41,9 @@ export async function POST(request: NextRequest) {
 
                 const interactivePayload = {
                     type: "button",
-                    header: "Hi, I am Rishabh",
+                    header: { type: "text", text: "Hi, I am Rishabh" },
                     text: "This is my whatsapp resume",
-                    footer: "Please do no call or text on this automated number",
+                    footer: "Automated text, Do not reply",
                     buttons: [
                         { id: "view", title: "View" },
                         { id: "resume", title: "Resume" },
@@ -52,21 +52,37 @@ export async function POST(request: NextRequest) {
                 };
                 await whatsapp.messages.sendInteractive(interactivePayload, from)
             }
-           
-            else if(message.interactive) {
+
+            else if (message.interactive) {
                 const interactive_type = message.interactive.type;
-                if(interactive_type === "button_reply") {
-                    if(message.interactive.button_reply.id === "view"){
-                        
+                if (interactive_type === "button_reply") {
+                    if (message.interactive.button_reply.id === "view") {
+
+                        const interactivePayload = {
+                            type: "cta_url",
+                            header: { type: "text", text: "Portfolio" },
+                            text: "Great! Here is my web portfolio",
+                            footer: "Automated text, Do not reply",
+                            url: "https://rsuniverse.com",
+                            url_label: "Portfolio"
+                        };
+
+                        await whatsapp.messages.sendInteractive(interactivePayload, from)
                     }
-                    else if(message.interactive.button_reply.id === "resume"){
-                        await whatsapp.messages.sendDocument("ssf","yess");
+                    else if (message.interactive.button_reply.id === "resume") {
+
+                        const documentPayload = {
+                            caption: "Sure! here if my latest updated resume!",
+                            filename: "rishabh_singh_resume.pdf",
+                            link: "https://rs-whatsapp-automation.vercel.app/resume.pdf"
+                        }
+                        await whatsapp.messages.sendDocument(documentPayload, from);
                     }
                     else {
-
+                        await whatsapp.messages.sendContacts(from);
                     }
                 }
-            
+
             }
         }
 
