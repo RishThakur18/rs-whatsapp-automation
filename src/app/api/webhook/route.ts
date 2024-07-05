@@ -35,9 +35,41 @@ export async function POST(request: NextRequest) {
         if (messages && messages.length > 0) {
             const message = messages[0];
             const from = message.from;
-            const text = message.text.body;
-            await whatsapp.messages.sendText("hiiii", from);
+            if (message.text) {
+                const text = message.text.body;
+                // await whatsapp.messages.sendText("hiiii", from);
+
+                const interactivePayload = {
+                    type: "button",
+                    header: "Hi, I am Rishabh",
+                    text: "This is my whatsapp resume",
+                    footer: "Please do no call or text on this automated number",
+                    buttons: [
+                        { id: "view", title: "View" },
+                        { id: "resume", title: "Resume" },
+                        { id: "contact", title: "Contact" }
+                    ],
+                };
+                await whatsapp.messages.sendInteractive(interactivePayload, from)
+            }
+           
+            else if(message.interactive) {
+                const interactive_type = message.interactive.type;
+                if(interactive_type === "button_reply") {
+                    if(message.interactive.button_reply.id === "view"){
+                        
+                    }
+                    else if(message.interactive.button_reply.id === "resume"){
+                        await whatsapp.messages.sendDocument("ssf","yess");
+                    }
+                    else {
+
+                    }
+                }
+            
+            }
         }
+
 
         return NextResponse.json({ status: 'success' }, { status: 200 });
     }

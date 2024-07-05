@@ -1,68 +1,5 @@
+import { AudioPayload, ContactsPayload, DocumentPayload, ImagePayload, InteractivePayload, LocationPayload, Payload, StickerPayload, TemplatePayload, TextPayload, VideoPayload } from "./types/wa_messages_types";
 import { WA_REQUEST } from "./wa_request";
-
-interface AudioPayload {
-    audio_url: string;
-}
-
-interface ContactsPayload {
-    name: string;
-    phone_number: string;
-}
-
-interface DocumentPayload {
-    document_url: string;
-    caption?: string;
-}
-
-interface ImagePayload {
-    image_url: string;
-    caption?: string;
-}
-
-interface InteractivePayload {
-    // Define structure based on interactive message requirements
-    // Example fields:
-    // buttons: Button[]
-}
-
-interface LocationPayload {
-    latitude: number;
-    longitude: number;
-    name?: string;
-}
-
-interface StickerPayload {
-    sticker_url: string;
-}
-
-interface TemplatePayload {
-    // Define structure based on template message requirements
-    // Example fields:
-    // template_name: string;
-    // elements: Element[];
-}
-
-interface TextPayload {
-    text: { body: string };
-}
-
-interface VideoPayload {
-    video_url: string;
-    caption?: string;
-}
-
-type Payload =
-    | AudioPayload
-    | ContactsPayload
-    | DocumentPayload
-    | ImagePayload
-    | InteractivePayload
-    | LocationPayload
-    | StickerPayload
-    | TemplatePayload
-    | TextPayload
-    | VideoPayload;
-
 
 export class WA_MESSAGES {
     private readonly commonMethod: string = "Post";
@@ -73,7 +10,7 @@ export class WA_MESSAGES {
         this.request = request;
     }
 
-    async send(type: string, payload: Payload, recipient: string, replyMessageId?: string) {
+    private async send(type: string, payload: Payload, recipient: string, replyMessageId?: string) {
         const body = {
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
@@ -106,7 +43,15 @@ export class WA_MESSAGES {
         return this.send("contacts", contactsPayload, recipient, replyMessageId);
     }
 
-    async sendDocument(documentPayload: DocumentPayload, recipient: string, replyMessageId?: string) {
+    async sendDocument(documentPayload: any, recipient: string, replyMessageId?: string) {
+
+        const payload: DocumentPayload = 
+            {
+                link: `https://rs-whatsapp-automation.vercel.app/resume.pdf`,
+                caption: documentPayload.caption,
+                filename: documentPayload.filename
+        }
+
         return this.send("document", documentPayload, recipient, replyMessageId);
     }
 
@@ -114,8 +59,31 @@ export class WA_MESSAGES {
         return this.send("image", imagePayload, recipient, replyMessageId);
     }
 
-    async sendInteractive(interactivePayload: InteractivePayload, recipient: string, replyMessageId?: string) {
-        return this.send("interactive", interactivePayload, recipient, replyMessageId);
+    async sendInteractive(interactivePayload: any, recipient: string, replyMessageId?: string) {
+
+        const buttons = interactivePayload.buttons.slice(0, 3).map((button: { id: string; title: string; }) => ({
+            type: "reply",
+            reply: {
+                id: button.id,
+                title: button.title,
+            }
+        }));
+
+        const payload: InteractivePayload = {
+            type: interactivePayload.type,
+            header: { type: "text", text: interactivePayload.header },
+            body: {
+                text: interactivePayload.text,
+            },
+            footer: {
+                text: interactivePayload.footer,
+            },
+            action: {
+                buttons,
+            },
+        };
+
+        return this.send("interactive", payload, recipient, replyMessageId);
     }
 
     async sendLocation(locationPayload: LocationPayload, recipient: string, replyMessageId?: string) {
@@ -131,7 +99,7 @@ export class WA_MESSAGES {
     }
 
     async sendText(textPayload: string, recipient: string, replyMessageId?: string) {
-        return this.send("text", { body: textPayload}, recipient, replyMessageId);
+        return this.send("text", { body: textPayload }, recipient, replyMessageId);
     }
 
     async sendVideo(videoPayload: VideoPayload, recipient: string, replyMessageId?: string) {
